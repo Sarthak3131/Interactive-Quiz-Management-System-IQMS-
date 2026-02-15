@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>       
+</head>
+<body>
+    <div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+        <div class="sidebar-sticky">
+            <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active" href="#">
+                <i class="fas fa-tachometer-alt"></i> <h1>Quiz Master</h1>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#quizzes">
+                <i class="fas fa-question-circle"></i> Manage Quizzes
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#subjects">
+                <i class="fas fa-book"></i> Manage Subjects
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#topics">
+                <i class="fas fa-list"></i> Manage Topics
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#users">
+                <i class="fas fa-users"></i> Manage Users
+                </a>
+            </li>
+            </ul>
+        </div>
+        </nav>
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">{{username}}'s Dashboard</h1>
+            <div class="universal-search-container mb-4">
+                <div class="input-group">
+                  <input type="text" id="universalSearch" class="form-control" placeholder="Search across all entities...">
+                  <button class="btn btn-primary" type="button" id="searchButton">
+                    <i class="fas fa-search"></i> Search
+                  </button>
+                </div>
+                <div class="form-check form-check-inline mt-2">
+                  <input class="form-check-input" type="checkbox" id="searchUsers" checked>
+                  <label class="form-check-label" for="searchUsers">Users</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="searchQuizzes" checked>
+                  <label class="form-check-label" for="searchQuizzes">Quizzes</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="searchQuestions" checked>
+                  <label class="form-check-label" for="searchQuestions">Questions</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="searchSubjects" checked>
+                  <label class="form-check-label" for="searchSubjects">Subjects</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="searchChapters" checked>
+                  <label class="form-check-label" for="searchChapters">Chapters</label>
+                </div>
+              </div>
+              
+              <div id="searchResults" class="mt-3" style="display: none;">
+                <h3>Search Results</h3>
+                <div class="accordion" id="searchResultsAccordion">
+                  <!-- Results will be populated here -->
+                </div>
+              </div>
+        </div>
+
+        <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#AddQuestionsModal">
+            <i class="fas fa-plus"></i>Add Questions
+        </button>
+        &nbsp;
+        <button type="button" class="btn btn-info mb-3" data-bs-toggle="modal" data-bs-target="#ViewQuestionsModal">
+            <i class="fas fa-eye"></i>View Questions
+        </button>
+
+        <section id="quizzes">
+            <h2>Manage Quizzes</h2>
+            <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createQuizModal">
+            <i class="fas fa-plus"></i>Create Quiz
+            </button>
+            <div class="table-responsive">
+            <table class="table table-striped table-sm">
+                <thead>
+                <tr>
+                    <th>Quiz ID</th>
+                    <th>Chapter</th>
+                    <th>Subject</th>
+                    <th>Date of Quiz</th>
+                    <th>Time Duration</th>
+                    <th>Remarks</th>
+                    <th>No. of Questions</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for quiz in quizzes %}
+                <tr>
+                    <td>{{ quiz.id }}</td>
+                    <td>{{ quiz.chapter.name }}</td>
+                    <td>{{ quiz.chapter.subject.name }}</td>
+                    <td>{{ quiz.date_of_quiz }}</td>
+                    <td>{{ quiz.time_duration }} hr</td>
+                    <td>{{ quiz.remarks }}</td>
+                    <td>{{ quiz.no_of_questions }}</td>
+                    <td>
+                        <button type="button"
+                                class="btn btn-sm btn-info edit-quiz"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editQuizModal" 
+                                data-quiz_date="{{quiz.date_of_quiz}}"
+                                data-quiz_time_duration="{{quiz.time_duration}}"
+                                data-quiz_remarks="{{quiz.remarks}}">
+                            Edit
+                        </button>
+                        <form action="/admin/delete-quiz" method="POST" style="display:inline;">
+                            <input type="hidden" name="quiz_id" value="{{ quiz.id }}">
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </section>
+
+        <section id="subjects" class="mt-5">
+            <h2>Manage Subjects</h2>
+            <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createSubjectModal">
+            <i class="fas fa-plus"></i>Add New Subject
+            </button>
+            <div class="table-responsive">
+            <table class="table table-striped table-sm">
+                <thead>
+                <tr>
+                    <th>Subject ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for subject in subjects %}
+                <tr>
+                    <td>{{ subject.id }}</td>
+                    <td>{{ subject.name }}</td>
+                    <td>{{ subject.description }}</td>
+                    <td>
+                    <button type="button"
+                            class="btn btn-sm btn-info edit-subject"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#editSubjectModal" 
+                            data-subject_id="{{subject.id}}"
+                            data-subject_name="{{subject.name}}"
+                            data-subject_desc="{{subject.description}}">
+                        Edit
+                    </button>
+                    <form action="/admin/delete-subject" method="POST" style="display:inline;">
+                        <input type="hidden" name="subject_id" value="{{ subject.id }}">
+                        <button type="submit" class="btn btn-sm btn-danger">
+                            Delete
+                        </button>
+                    </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </section>
+
+        <section id="chapter" class="mt-5">
+            <h2>Manage Chapters</h2>
+            <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createChapterModal">
+            <i class="fas fa-plus"></i>Add New Chapter
+            </button>
+            <div class="table-responsive">
+            <table class="table table-striped table-sm">
+                <thead>
+                <tr>
+                    <th>Chapter ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Subject</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for chapter in chapters %}
+                <tr>
+                    <td>{{ chapter.id }}</td>
+                    <td>{{ chapter.name }}</td>
+                    <td>{{ chapter.description }}</td>
+                    <td>{{ chapter.subject.name }}</td>
+                    <td>
+                        <button type="button"
+                                class="btn btn-sm btn-info edit-chapter"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editChapterModal" 
+                                data-chapter_id="{{chapter.id}}"
+                                data-chapter_name="{{chapter.name}}"
+                                data-chapter_desc="{{chapter.description}}">
+                            Edit
+                        </button>
+                        <form action="/admin/delete-chapter" method="POST" style="display:inline;">
+                            <input type="hidden" name="chapter_id" value="{{ chapter.id }}">
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </section>
+
+        <section id="users" class="mt-5">
+            <h2>Manage Users</h2>
+            <div class="table-responsive">
+            <table class="table table-striped table-sm">
+                <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Date of Birth</th>
+                    <th>Qualification</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.Full_Name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.DOB }}</td>
+                    <td>{{ user.qualification }}</td>
+                    <td>
+                    <button class="btn btn-sm btn-info">Edit</button>
+                    <button class="btn btn-sm btn-danger">Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </main>
+    </div>
+    </div>
+
+    <!-- Create Quiz Modal -->
+    <div class="modal fade" id="createQuizModal" tabindex="-1" aria-labelledby="createQuizModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content shadow-lg border-0 rounded-3">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="createQuizModalLabel">Create New Quiz</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/admin/create-quiz" method="POST">
+                <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="chapter_id" class="form-label fw-bold">Chapter</label>
+                            <select class="form-select" id="chapter_id" name="chapter_id" required>
+                                {% for chapter in chapters %}
+                                <option value="{{ chapter.id }}">{{ chapter.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="quizdate" class="form-label fw-bold">Date</label>
+                            <input type="date" class="form-control" id="quizdate" name="date_of_quiz" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="quizTime" class="form-label fw-bold">Time Duration</label>
+                            <input type="text" class="form-control" id="quizTime" name="time_duration" placeholder="hh:mm" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="quizRemarks" class="form-label fw-bold">Remarks</label>
+                            <input type="text" class="form-control" id="quizRemarks" name="remarks" placeholder="Optional">
+                        </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-success" value="Create">
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Subject Modal -->
+    <div class="modal fade" id="createSubjectModal" tabindex="-1" aria-labelledby="createSubjectModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content shadow-lg border-0 rounded-3">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="createSubjectModalLabel">Add New Subject</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/admin/add-subject" method="POST">
+                <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="subjectname" class="form-label fw-bold">Subject Name</label>
+                            <input type="text" class="form-control" id="subjectname" name="sname" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subjectdescription" class="form-label fw-bold">Description</label>
+                            <input type="text" class="form-control" id="subjectdescription" name="sdescription" required>
+                        </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-success" value="Add">
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Chapter Modal -->
+    <div class="modal fade" id="createChapterModal" tabindex="-1" aria-labelledby="createChapterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content shadow-lg border-0 rounded-3">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="createQuizModalLabel">Add Chapter</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/admin/add-chapter" method="POST">
+                <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="chaptername" class="form-label fw-bold">Chapter Name</label>
+                            <input type="text" class="form-control" id="chaptername" name="cname" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="chapterdescription" class="form-label fw-bold">Description</label>
+                            <input type="text" class="form-control" id="chapterdescription" name="cdescription" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject_id" class="form-label fw-bold">Subject</label>
+                            <select class="form-select" id="subject_id" name="subject_id" required>
+                                {% for subject in subjects %}
+                                <option value="{{ subject.id }}">{{ subject.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-success" value="Add">
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Questions Modal -->
+    <div class="modal fade" id="AddQuestionsModal" tabindex="-1" aria-labelledby="AddQuestionsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content shadow-lg border-0 rounded-3">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="AddQuestionsModalLabel">Add Questions</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/admin/add-questions" method="POST">
+                <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="question" class="form-label fw-bold">Question</label>
+                            <input type="text" class="form-control" id="question" name="question" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="option1" class="form-label fw-bold">Option 1</label>
+                            <input type="text" class="form-control" id="option1" name="option1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="option2" class="form-label fw-bold">Option 2</label>
+                            <input type="text" class="form-control" id="option2" name="option2" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="option3" class="form-label fw-bold">Option 3</label>
+                            <input type="text" class="form-control" id="option3" name="option3" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="option4" class="form-label fw-bold">Option 4</label>
+                            <input type="text" class="form-control" id="option4" name="option4" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="correctAnswer" class="form-label fw-bold">Correct Answer</label>
+                            <select class="form-select" id="correctAnswer" name="correctAnswer" required>
+                                <option value="1">Option 1</option>
+                                <option value="2">Option 2</option>
+                                <option value="3">Option 3</option>
+                                <option value="4">Option 4</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="quiz_id" class="form-label fw-bold">Quiz ID</label>
+                            <select class="form-select" id="quiz_id" name="quiz_id" required>
+                                {% for quiz in quizzes %}
+                                <option value="{{ quiz.id }}">{{ quiz.id }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-success" value="Add">
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Questions Modal -->
+    <div class="modal fade" id="ViewQuestionsModal" tabindex="-1" aria-labelledby="ViewQuestionsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content shadow-lg border-0 rounded-3">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="ViewQuestionsModalLabel">View Questions</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Dropdown to Select Quiz -->
+                    <select class="form-select" id="quiz_id" name="quiz_id" required onchange="filterQuestions()">
+                        <option value="all">Select Quiz</option>
+                        {% for quiz in quizzes %}
+                        <option value="{{ quiz.id }}">{{ quiz.id }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <!-- Table -->
+                    <div class="table-responsive">
+                        <table class="table table-striped table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Question ID</th>
+                                    <th>Question</th>
+                                    <th>Option 1</th>
+                                    <th>Option 2</th>
+                                    <th>Option 3</th>
+                                    <th>Option 4</th>
+                                    <th>Correct Answer</th>
+                                    <th>Quiz ID</th>
+                                </tr>
+                            </thead>
+                            <tbody id="questionsTable">
+                                {% for question in questions %}
+                                <tr data-quiz-id="{{ question.quiz_id | string }}">
+                                    <td>{{ question.id }}</td>
+                                    <td>{{ question.question }}</td>
+                                    <td>{{ question.option1 }}</td>
+                                    <td>{{ question.option2 }}</td>
+                                    <td>{{ question.option3 }}</td>
+                                    <td>{{ question.option4 }}</td>
+                                    <td>{{ question.correct_option }}</td>
+                                    <td>{{ question.quiz_id }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>                
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Quiz Modal -->
+    <div class="modal fade" id="editQuizModal" tabindex="-1" aria-labelledby="editQuizModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content shadow-lg border-0 rounded-3">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="editQuizModalLabel">Edit Quiz</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/admin/edit-quiz" method="POST">
+                <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="subject_id" class="form-label fw-bold">Quiz ID</label>
+                            <input type="number" id="quiz_id" name="quiz_id" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="quizdate" class="form-label fw-bold">Date</label>
+                            <input type="date" class="form-control" id="quizdate" name="date_of_quiz" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="quizTime" class="form-label fw-bold">Time Duration</label>
+                            <input type="text" class="form-control" id="quizTime" name="time_duration" placeholder="hh:mm" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="quizRemarks" class="form-label fw-bold">Remarks</label>
+                            <input type="text" class="form-control" id="quizRemarks" name="remarks" placeholder="Optional">
+                        </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-success" value="Edit">
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Subject Modal -->
+    <div class="modal fade" id="editSubjectModal" tabindex="-1" aria-labelledby="editSubjectModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content shadow-lg border-0 rounded-3">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="editSubjectModalLabel">Edit Subject</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/admin/edit-subject" method="POST">
+                <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="subject_id" class="form-label fw-bold">Subject ID</label>
+                            <input type="number" id="subject_id" name="subject_id" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subjectname" class="form-label fw-bold">Subject Name</label>
+                            <input type="text" class="form-control" id="subjectname" name="sname" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subjectdescription" class="form-label fw-bold">Description</label>
+                            <input type="text" class="form-control" id="subjectdescription" name="sdescription" required>
+                        </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-success" value="Edit">
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Chapter Modal -->
+    <div class="modal fade" id="editChapterModal" tabindex="-1" aria-labelledby="editChapterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content shadow-lg border-0 rounded-3">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="editChapterModalLabel">Edit Chapter</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/admin/edit-chapter" method="POST">
+                <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="chapter_id" class="form-label fw-bold">Chapter ID</label>
+                            <input type="number" id="chapter_id" name="chapter_id" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="chaptername" class="form-label fw-bold">Subject Name</label>
+                            <input type="text" class="form-control" id="chaptername" name="cname" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="chapterdescription" class="form-label fw-bold">Description</label>
+                            <input type="text" class="form-control" id="chapterdescription" name="cdescription" required>
+                        </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-success" value="Edit">
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterQuestions() {
+            var quizId = document.getElementById('quiz_id').value; // Selected quiz ID
+            var questionsTable = document.getElementById('questionsTable'); // Table body
+            var questions = questionsTable.getElementsByTagName('tr'); // All rows
+            
+            for (var i = 0; i < questions.length; i++) {
+                var quizIdAttr = questions[i].getAttribute('data-quiz-id'); // Get quiz ID from row
+                
+                if (quizIdAttr !== null) { 
+                    quizIdAttr = quizIdAttr.trim(); // Trim spaces if any
+                }
+
+                if (quizId === 'all' || quizIdAttr === quizId) {
+                    questions[i].style.display = ''; // Show row
+                } else {
+                    questions[i].style.display = 'none'; // Hide row
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('universalSearch');
+        const searchButton = document.getElementById('searchButton');
+        const searchResults = document.getElementById('searchResults');
+        const resultsAccordion = document.getElementById('searchResultsAccordion');
+        
+        // Search function
+        function performSearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            if (searchTerm === '') {
+            searchResults.style.display = 'none';
+            return;
+            }
+            
+            // Clear previous results
+            resultsAccordion.innerHTML = '';
+            searchResults.style.display = 'block';
+            
+            // Get search filters
+            const searchUsers = document.getElementById('searchUsers').checked;
+            const searchQuizzes = document.getElementById('searchQuizzes').checked;
+            const searchQuestions = document.getElementById('searchQuestions').checked;
+            const searchSubjects = document.getElementById('searchSubjects').checked;
+            const searchChapters = document.getElementById('searchChapters').checked;
+            
+            // Search users
+            if (searchUsers) {
+            const userResults = searchEntities('users', searchTerm);
+            if (userResults.length > 0) {
+                addResultsSection('Users', userResults);
+            }
+            }
+            
+            // Search quizzes
+            if (searchQuizzes) {
+            const quizResults = searchEntities('quizzes', searchTerm);
+            if (quizResults.length > 0) {
+                addResultsSection('Quizzes', quizResults);
+            }
+            }
+            
+            // Search questions
+            if (searchQuestions) {
+            const questionResults = searchEntities('questions', searchTerm);
+            if (questionResults.length > 0) {
+                addResultsSection('Questions', questionResults);
+            }
+            }
+            
+            // Search subjects
+            if (searchSubjects) {
+            const subjectResults = searchEntities('subjects', searchTerm);
+            if (subjectResults.length > 0) {
+                addResultsSection('Subjects', subjectResults);
+            }
+            }
+            
+            // Search chapters
+            if (searchChapters) {
+            const chapterResults = searchEntities('chapters', searchTerm);
+            if (chapterResults.length > 0) {
+                addResultsSection('Chapters', chapterResults);
+            }
+            }
+            
+            // If no results found
+            if (resultsAccordion.innerHTML === '') {
+            resultsAccordion.innerHTML = '<div class="alert alert-info">No results found.</div>';
+            }
+        }
+        
+        // Function to search entities
+        function searchEntities(entityType, searchTerm) {
+            let results = [];
+            
+            // This is where you would normally fetch data from your backend
+            // For demonstration, we'll use the table data that's already on the page
+            
+            switch(entityType) {
+            case 'users':
+                const userTable = document.querySelector('#users table tbody');
+                if (userTable) {
+                const userRows = userTable.querySelectorAll('tr');
+                userRows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length > 0) {
+                    const userData = {
+                        username: cells[0].textContent,
+                        fullName: cells[1].textContent,
+                        email: cells[2].textContent,
+                        dob: cells[3].textContent,
+                        qualification: cells[4].textContent
+                    };
+                    
+                    if (Object.values(userData).some(value => 
+                        value.toLowerCase().includes(searchTerm))) {
+                        results.push({
+                        type: 'user',
+                        data: userData,
+                        displayText: `${userData.fullName} (${userData.username})`,
+                        detailText: `Email: ${userData.email}, Qualification: ${userData.qualification}`
+                        });
+                    }
+                    }
+                });
+                }
+                break;
+                
+            case 'quizzes':
+                const quizTable = document.querySelector('#quizzes table tbody');
+                if (quizTable) {
+                const quizRows = quizTable.querySelectorAll('tr');
+                quizRows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length > 0) {
+                    const quizData = {
+                        id: cells[0].textContent,
+                        chapter: cells[1].textContent,
+                        subject: cells[2].textContent,
+                        date: cells[3].textContent,
+                        duration: cells[4].textContent,
+                        remarks: cells[5].textContent,
+                        questions: cells[6].textContent
+                    };
+                    
+                    if (Object.values(quizData).some(value => 
+                        value.toLowerCase().includes(searchTerm))) {
+                        results.push({
+                        type: 'quiz',
+                        data: quizData,
+                        displayText: `Quiz ${quizData.id}: ${quizData.chapter}`,
+                        detailText: `Subject: ${quizData.subject}, Date: ${quizData.date}, Duration: ${quizData.duration}`
+                        });
+                    }
+                    }
+                });
+                }
+                break;
+                
+            case 'subjects':
+                const subjectTable = document.querySelector('#subjects table tbody');
+                if (subjectTable) {
+                const subjectRows = subjectTable.querySelectorAll('tr');
+                subjectRows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length > 0) {
+                    const subjectData = {
+                        id: cells[0].textContent,
+                        name: cells[1].textContent,
+                        description: cells[2].textContent
+                    };
+                    
+                    if (Object.values(subjectData).some(value => 
+                        value.toLowerCase().includes(searchTerm))) {
+                        results.push({
+                        type: 'subject',
+                        data: subjectData,
+                        displayText: `Subject: ${subjectData.name}`,
+                        detailText: `Description: ${subjectData.description}`
+                        });
+                    }
+                    }
+                });
+                }
+                break;
+                
+            case 'chapters':
+                const chapterTable = document.querySelector('#chapter table tbody');
+                if (chapterTable) {
+                const chapterRows = chapterTable.querySelectorAll('tr');
+                chapterRows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length > 0) {
+                    const chapterData = {
+                        id: cells[0].textContent,
+                        name: cells[1].textContent,
+                        description: cells[2].textContent,
+                        subject: cells[3].textContent
+                    };
+                    
+                    if (Object.values(chapterData).some(value => 
+                        value.toLowerCase().includes(searchTerm))) {
+                        results.push({
+                        type: 'chapter',
+                        data: chapterData,
+                        displayText: `Chapter: ${chapterData.name}`,
+                        detailText: `Subject: ${chapterData.subject}, Description: ${chapterData.description}`
+                        });
+                    }
+                    }
+                });
+                }
+                break;
+                
+            case 'questions':
+                // This would need to be implemented based on how your questions are displayed
+                // For now, we'll use a placeholder approach
+                const questionsTable = document.querySelector('#ViewQuestionsModal table tbody');
+                if (questionsTable) {
+                const questionRows = questionsTable.querySelectorAll('tr');
+                questionRows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length > 0) {
+                    const questionData = {
+                        id: cells[0]?.textContent || '',
+                        question: cells[1]?.textContent || '',
+                        option1: cells[2]?.textContent || '',
+                        option2: cells[3]?.textContent || '',
+                        option3: cells[4]?.textContent || '',
+                        option4: cells[5]?.textContent || '',
+                        correctAnswer: cells[6]?.textContent || '',
+                        quizId: cells[7]?.textContent || ''
+                    };
+                    
+                    if (Object.values(questionData).some(value => 
+                        value.toLowerCase().includes(searchTerm))) {
+                        results.push({
+                        type: 'question',
+                        data: questionData,
+                        displayText: `Question: ${questionData.question.substring(0, 50)}...`,
+                        detailText: `Quiz ID: ${questionData.quizId}, Correct Answer: Option ${questionData.correctAnswer}`
+                        });
+                    }
+                    }
+                });
+                }
+                break;
+            }
+            
+            return results;
+        }
+        
+        // Function to add a section of results to the accordion
+        function addResultsSection(title, results) {
+            const sectionId = `${title.toLowerCase()}Results`;
+            const accordionItem = document.createElement('div');
+            accordionItem.className = 'accordion-item';
+            
+            accordionItem.innerHTML = `
+            <h2 class="accordion-header" id="heading${sectionId}">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" 
+                        data-bs-target="#collapse${sectionId}" aria-expanded="true" 
+                        aria-controls="collapse${sectionId}">
+                ${title} (${results.length})
+                </button>
+            </h2>
+            <div id="collapse${sectionId}" class="accordion-collapse collapse show" 
+                aria-labelledby="heading${sectionId}" data-bs-parent="#searchResultsAccordion">
+                <div class="accordion-body">
+                <ul class="list-group">
+                    ${results.map(result => `
+                    <li class="list-group-item">
+                        <div class="fw-bold">${result.displayText}</div>
+                        <div class="small">${result.detailText}</div>
+                    </li>
+                    `).join('')}
+                </ul>
+                </div>
+            </div>
+            `;
+            
+            resultsAccordion.appendChild(accordionItem);
+        }
+        
+        // Event listeners
+        searchButton.addEventListener('click', performSearch);
+        searchInput.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+            performSearch();
+            }
+        });
+        });
+
+    </script>
+
+</body>
+</html>
